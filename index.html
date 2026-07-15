@@ -364,20 +364,8 @@
       to { transform: scale(1) rotate(0deg); opacity: 1; }
     }
 
-    .celebration svg {
-      animation: heartBeat 1.2s infinite ease-in-out;
-    }
-
-    @keyframes heartBeat {
-      0%, 100% { transform: scale(1); }
-      25% { transform: scale(1.18); }
-      40% { transform: scale(1.05); }
-      60% { transform: scale(1.25); }
-    }
-
     /* --- REPLY FORM STYLING --- */
     .reply-box {
-      margin-top: 25px;
       display: flex;
       flex-direction: column;
       width: 350px;
@@ -386,6 +374,7 @@
       border-radius: 12px;
       box-shadow: 0 8px 32px 0 rgba(114, 9, 183, 0.1);
       backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
@@ -426,6 +415,78 @@
     .reply-box button:hover {
       transform: scale(1.05);
       box-shadow: 0 6px 15px rgba(92, 44, 144, 0.4);
+    }
+
+    /* --- RE-DESIGNED PROFESSIONAL ALERT MODAL --- */
+    .custom-alert-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(43, 29, 61, 0.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .custom-alert-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .custom-alert {
+      background-color: #ffffff;
+      border: 1px solid rgba(147, 98, 210, 0.2);
+      width: 340px;
+      max-width: 90%;
+      padding: 32px 24px;
+      border-radius: 24px;
+      box-shadow: 0 20px 45px rgba(92, 44, 144, 0.15), 0 1px 3px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      transform: scale(0.9) translateY(15px);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .custom-alert-overlay.show .custom-alert {
+      transform: scale(1) translateY(0);
+    }
+
+    .custom-alert-msg {
+      font-size: 1.05rem;
+      color: #312144;
+      font-weight: 500;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .custom-alert-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 10px 36px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(92, 44, 144, 0.25);
+      transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .custom-alert-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(92, 44, 144, 0.35);
+    }
+
+    .custom-alert-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(92, 44, 144, 0.2);
     }
 
     .sparkle {
@@ -473,7 +534,7 @@
     </div>
 
     <div class="letter-modal" id="letter-modal">
-      <h2 id="modal-title">ulan,</h2>
+      <h2 id="modal-title">Ulan,</h2>
       <p class="letter-content" id="modal-text">
         Can I tell you something?
       </p>
@@ -485,16 +546,19 @@
     </div>
 
     <div class="celebration" id="celebration">
-      <svg width="120" height="120" viewBox="0 0 24 24" fill="#703ea8">
-        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-      </svg>
-
       <div class="reply-box">
         <textarea id="reply-text" placeholder="Write a reply... "></textarea>
         <button id="send-reply-btn" onclick="sendFormspreeReply()">Send Reply</button>
       </div>
     </div>
 
+  </div>
+
+  <div class="custom-alert-overlay" id="custom-alert-overlay">
+    <div class="custom-alert">
+      <div class="custom-alert-msg" id="custom-alert-msg">Please write something first! 💜</div>
+      <button class="custom-alert-btn" onclick="closeCustomAlert()">Okay</button>
+    </div>
   </div>
 
   <script>
@@ -506,6 +570,19 @@
     const modalTitle = document.getElementById('modal-title');
     const modalText = document.getElementById('modal-text');
     const btnContainer = document.getElementById('modal-buttons');
+    const alertOverlay = document.getElementById('custom-alert-overlay');
+    const alertMsg = document.getElementById('custom-alert-msg');
+
+    // Smooth Professional Alert Functions
+    function showCustomAlert(message) {
+      alertMsg.innerHTML = message;
+      alertOverlay.classList.add('show');
+    }
+
+    // Fixed context logic error
+    function closeCustomAlert() {
+      alertOverlay.classList.remove('show');
+    }
 
     // Step 1: Open the envelope smoothly
     function openEnvelope() {
@@ -550,15 +627,13 @@
 
     // Step 3: Transition to your official message with a 3D Flip Card animation
     function revealOfficialMessage() {
-      // Trigger the 3D flipping animation
       letterModal.classList.add('flipping');
 
-      // Swap the text content exactly halfway through the flip (at 350ms)
+      //MESSAGE
       setTimeout(() => {
         modalTitle.innerText = "To You,";
-        modalText.innerHTML = "I know what’s running on your mind, I don’t want you to be confused and keep thinking where this situationship or whatever you call this is going. I want you to know that my intentions to you are genuinely pure. I like you and I have plans, but I don’t want to rush things. I want to get to know you deeper, learn you, and vice versa. <br><br><b>Let's take our time and see where this takes us. </b>";
+        modalText.innerHTML = "I know what’s running on your mind, and I don't want you to be confused or keep overthinking where this is going. I want you to know that my intentions with you are genuinely pure, and I am being ethical with my decisions. I like you and I have plans, but I don't want to rush things. I want to get to know you deeper, learn about you, and vice versa. <br><br><b>Let's take our time and see where this takes us. </b>";
         
-        // Hide the "No" button entirely & center the final button
         noBtn.style.display = 'none';
         yesBtn.style.position = 'relative';
         yesBtn.style.left = '0';
@@ -567,7 +642,6 @@
         yesBtn.onclick = acceptInvitation; 
       }, 350);
 
-      // Clean up classes after animation ends (at 700ms)
       setTimeout(() => {
         letterModal.classList.remove('flipping');
       }, 700);
@@ -589,14 +663,13 @@
       const sendBtn = document.getElementById('send-reply-btn');
       
       if (replyText === "") {
-        alert("Please write something first!");
+        showCustomAlert("Please write something first! 💜");
         return;
       }
 
       sendBtn.innerText = "Sending...";
       sendBtn.disabled = true;
 
-      // Fully active Formspree route linked directly to your email account
       fetch("https://formspree.io/f/xeeyejgb", { 
         method: "POST",
         headers: {
@@ -604,14 +677,14 @@
           "Accept": "application/json"
         },
         body: JSON.stringify({
-          sender: "rainraingoaway",
+          sender: "ulan",
           reply: replyText
         })
       })
       .then(response => {
         if (response.ok) {
           sendBtn.innerText = "Sent!";
-          alert("Your reply was sent directly to Drew's email!");
+          showCustomAlert("Your reply was sent directly to Drew's email! 🥰");
           document.getElementById('reply-text').value = ""; 
         } else {
           throw new Error("Formspree rejected submission");
@@ -619,8 +692,10 @@
       })
       .catch(error => {
         console.error("Sending failed: ", error);
-        alert("Oops! Background sending failed. Let's send via your Mail app instead.");
-        window.location.href = `mailto:kurtandrewragodon019@gmail.com?subject=My Reply&body=${encodeURIComponent(replyText)}`;
+        showCustomAlert("Background sending failed. Let's send via your Mail app instead.");
+        setTimeout(() => {
+          window.location.href = `mailto:kurtandrewragodon019@gmail.com?subject=My Reply &body=${encodeURIComponent(replyText)}`;
+        }, 1500);
         sendBtn.innerText = "Send Reply";
         sendBtn.disabled = false;
       });
