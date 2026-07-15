@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Can I tell you something?</title>
+  <style>
+    :root {
+      --envelope-back: #8453c2;    /* Dark purple inside */
+      --envelope-base: #9362d2;    /* Base envelope color */
+      --envelope-flap: #a170e0;    /* Top flap */
+      --envelope-sides: #8c5bc8;   /* Diagonal side flaps */
+      --seal-color: #703ea8;       /* Rich purple wax seal */
+      --primary-color: #5c2c90;    /* Text and primary button color */
+      --paper-color: #fbf8ff;      /* Letter paper color */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #cbb2eb; 
+      
+      /* Watercolor wash background with slow shifting animation */
+      background-image: 
+        radial-gradient(at 15% 15%, #e1d1f6 0px, transparent 55%),
+        radial-gradient(at 85% 20%, #a272df 0px, transparent 50%),
+        radial-gradient(at 50% 85%, #8853cb 0px, transparent 60%),
+        radial-gradient(at 80% 80%, #dec8f7 0px, transparent 45%),
+        radial-gradient(at 10% 75%, #925cc7 0px, transparent 50%);
+      background-size: 200% 200%;
+      background-attachment: fixed;
+      animation: shiftBackground 15s ease infinite alternate;
+      
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+      perspective: 1000px;
+    }
+
+    /* Living watercolor movement */
+    @keyframes shiftBackground {
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 100%; }
+    }
+
+    /* Textured watercolor paper grain overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      opacity: 0.12; 
+      pointer-events: none;
+      z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 150 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper-noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper-noise)'/%3E%3C/svg%3E");
+    }
+
+    .container {
+      position: relative;
+      width: 450px;
+      height: 550px; 
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* --- ENVELOPE INTRO & FLOAT ANIMATION --- */
+    .envelope-wrapper {
+      position: absolute;
+      width: 340px;
+      height: 220px;
+      cursor: pointer;
+      transition: transform 0.3s ease, opacity 0.5s ease;
+      animation: dropIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, float 4s ease-in-out infinite 1.2s;
+    }
+
+    @keyframes dropIn {
+      0% {
+        transform: translateY(-500px) rotate(-15deg) scale(0.5);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-12px) rotate(1.5deg); }
+    }
+
+    .envelope-wrapper:hover {
+      animation-play-state: paused;
+      transform: scale(1.06) rotate(-1deg);
+    }
+
+    .envelope {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: var(--envelope-back);
+      border-radius: 4px;
+      box-shadow: 0 15px 40px rgba(92, 44, 144, 0.3);
+      transform-style: preserve-3d;
+    }
+
+    .left-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--envelope-sides);
+      clip-path: polygon(0 0, 52% 50%, 0 100%);
+      z-index: 3;
+    }
+
+    .right-flap {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--envelope-sides);
+      clip-path: polygon(100% 0, 48% 50%, 100% 100%);
+      z-index: 3;
+    }
+
+    .bottom-flap {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--envelope-base);
+      clip-path: polygon(0 100%, 50% 46%, 100% 100%);
+      z-index: 3;
+    }
+
+    .top-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 115px;
+      background-color: var(--envelope-flap);
+      clip-path: polygon(0 0, 50% 100%, 100% 0);
+      transform-origin: top;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 4;
+      filter: drop-shadow(0 3px 3px rgba(0,0,0,0.15));
+    }
+
+    .mini-letter {
+      position: absolute;
+      bottom: 10px;
+      left: 20px;
+      width: 300px;
+      height: 150px;
+      background-color: var(--paper-color);
+      z-index: 2;
+      transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* --- REALISTIC WAX SEAL WITH HEARTBEAT --- */
+    .wax-seal {
+      position: absolute;
+      top: 92px;
+      left: 147px;
+      width: 46px;
+      height: 46px;
+      background-color: var(--seal-color);
+      border-radius: 48% 52% 50% 50% / 51% 49% 52% 48%;
+      z-index: 5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      box-shadow: 
+        0 3px 6px rgba(0,0,0,0.3), 
+        inset -2px -2px 4px rgba(0,0,0,0.4), 
+        inset 2px 2px 4px rgba(255,255,255,0.2);
+      animation: sealHeartbeat 2.2s infinite ease-in-out;
+    }
+
+    @keyframes sealHeartbeat {
+      0%, 100%, 20% { transform: scale(1); }
+      10% { transform: scale(1.1); }
+      15% { transform: scale(1.05); }
+      25% { transform: scale(1.12); }
+    }
+
+    .seal-inner {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      background-color: var(--seal-color);
+      box-shadow: inset 1px 1px 3px rgba(0,0,0,0.4), 0 1px 1px rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .seal-inner svg {
+      width: 18px;
+      height: 18px;
+      fill: rgba(0,0,0,0.25);
+      filter: drop-shadow(0.5px 0.5px 0.5px rgba(255,255,255,0.15));
+    }
+
+    /* --- OPEN ANIMATION STATES --- */
+    .envelope-wrapper.open {
+      animation: none;
+    }
+
+    .envelope-wrapper.open .top-flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+
+    .envelope-wrapper.open .wax-seal {
+      opacity: 0;
+      transform: scale(0.5);
+      pointer-events: none;
+      animation: none;
+    }
+
+    .envelope-wrapper.open .mini-letter {
+      transform: translateY(-110px);
+    }
+
+    /* --- POP UP LETTER MODAL --- */
+    .letter-modal {
+      position: absolute;
+      width: 380px; 
+      background-color: var(--paper-color);
+      border-radius: 16px;
+      padding: 35px 25px;
+      box-shadow: 0 20px 40px rgba(92, 44, 144, 0.25);
+      text-align: center;
+      transform: scale(0) rotate(-5deg);
+      opacity: 0;
+      transition: transform 0.7s cubic-bezier(0.34, 1.65, 0.45, 1.1), opacity 0.5s ease;
+      z-index: 10;
+      transform-style: preserve-3d;
+    }
+
+    .letter-modal.active {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+
+    /* Dramatic 3D Flip Animation for Message Reveal */
+    @keyframes cardFlip {
+      0% { transform: scale(1) rotateY(0deg); }
+      50% { transform: scale(0.85) rotateY(90deg); filter: blur(1px); }
+      100% { transform: scale(1) rotateY(0deg); }
+    }
+
+    .letter-modal.flipping {
+      animation: cardFlip 0.7s ease-in-out;
+    }
+
+    .letter-modal h2 {
+      color: var(--primary-color);
+      margin-bottom: 15px;
+      font-size: 1.6rem;
+    }
+
+    .letter-content {
+      font-size: 0.98rem;
+      color: #433355;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    /* --- BUTTONS --- */
+    .btn-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      position: relative;
+      height: 50px;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+    }
+
+    #yes-btn {
+      background-color: var(--primary-color);
+      color: white;
+      box-shadow: 0 4px 15px rgba(92, 44, 144, 0.4);
+      animation: pulseButton 1.8s infinite ease-in-out;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes pulseButton {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(92, 44, 144, 0.4);
+      }
+      50% {
+        transform: scale(1.06);
+        box-shadow: 0 6px 20px rgba(92, 44, 144, 0.6);
+      }
+    }
+
+    #yes-btn:hover {
+      transform: scale(1.12);
+      animation-play-state: paused;
+    }
+
+    #no-btn {
+      background-color: #e5daf3;
+      color: #6a5385;
+      position: absolute;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .jelly-evade {
+      animation: jellyWobble 0.3s ease forwards;
+    }
+
+    @keyframes jellyWobble {
+      0% { transform: scale(1, 1); }
+      30% { transform: scale(1.25, 0.75); }
+      60% { transform: scale(0.75, 1.25); }
+      100% { transform: scale(1, 1); }
+    }
+
+    /* --- CELEBRATION & REPLY STAGE --- */
+    .celebration {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      animation: popIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      z-index: 10;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+      to { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .celebration svg {
+      animation: heartBeat 1.2s infinite ease-in-out;
+    }
+
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.18); }
+      40% { transform: scale(1.05); }
+      60% { transform: scale(1.25); }
+    }
+
+    /* --- REPLY FORM STYLING --- */
+    .reply-box {
+      margin-top: 25px;
+      display: flex;
+      flex-direction: column;
+      width: 350px;
+      background: rgba(255, 255, 255, 0.4);
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px 0 rgba(114, 9, 183, 0.1);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .reply-box textarea {
+      width: 100%;
+      height: 90px;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: #433355;
+      background: rgba(255, 255, 255, 0.85);
+      resize: none;
+      outline: none;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+      margin-bottom: 12px;
+    }
+
+    .reply-box textarea::placeholder {
+      color: #9c8eab;
+    }
+
+    .reply-box button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 20px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      cursor: pointer;
+      align-self: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(92, 44, 144, 0.3);
+    }
+
+    .reply-box button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 15px rgba(92, 44, 144, 0.4);
+    }
+
+    .sparkle {
+      position: absolute;
+      pointer-events: none;
+      font-size: 20px;
+      animation: sparkleFall 2.8s linear forwards;
+    }
+
+    @keyframes sparkleFall {
+      0% {
+        transform: translateY(-20px) rotate(0deg) scale(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+        transform: translateY(0px) rotate(45deg) scale(1.2);
+      }
+      100% {
+        transform: translateY(105vh) rotate(720deg) scale(0.5);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <div class="envelope-wrapper" id="envelope-wrapper" onclick="openEnvelope()">
+      <div class="envelope">
+        <div class="top-flap"></div>
+        <div class="left-flap"></div>
+        <div class="right-flap"></div>
+        <div class="bottom-flap"></div>
+        <div class="mini-letter"></div>
+      </div>
+      <div class="wax-seal">
+        <div class="seal-inner">
+          <svg viewBox="0 0 24 24">
+            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4C13.5,4 15,4.6 16.1,5.6L14.7,7C13.9,6.4 13,6 12,6C9.8,6 8,7.8 8,10C8,11.2 8.5,12.3 9.4,13L8,14.4C6.8,13.2 6,11.7 6,10C6,6.7 8.7,4 12,4M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10Z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="letter-modal" id="letter-modal">
+      <h2 id="modal-title">ulan,</h2>
+      <p class="letter-content" id="modal-text">
+        Can I tell you something?
+      </p>
+      
+      <div class="btn-container" id="modal-buttons">
+        <button class="btn" id="yes-btn" onclick="revealOfficialMessage()">Yes!</button>
+        <button class="btn" id="no-btn" onmouseover="moveNoButton()" onclick="moveNoButton()">No</button>
+      </div>
+    </div>
+
+    <div class="celebration" id="celebration">
+      <svg width="120" height="120" viewBox="0 0 24 24" fill="#703ea8">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </svg>
+
+      <div class="reply-box">
+        <textarea id="reply-text" placeholder="Write a reply... "></textarea>
+        <button id="send-reply-btn" onclick="sendFormspreeReply()">Send Reply</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const envelopeWrapper = document.getElementById('envelope-wrapper');
+    const letterModal = document.getElementById('letter-modal');
+    const celebration = document.getElementById('celebration');
+    const noBtn = document.getElementById('no-btn');
+    const yesBtn = document.getElementById('yes-btn');
+    const modalTitle = document.getElementById('modal-title');
+    const modalText = document.getElementById('modal-text');
+    const btnContainer = document.getElementById('modal-buttons');
+
+    // Step 1: Open the envelope smoothly
+    function openEnvelope() {
+      envelopeWrapper.classList.add('open');
+      
+      setTimeout(() => {
+        envelopeWrapper.style.opacity = '0';
+        setTimeout(() => {
+          envelopeWrapper.style.display = 'none';
+          letterModal.classList.add('active');
+          resetNoButton();
+        }, 300);
+      }, 1100);
+    }
+
+    // Step 2: "No" Button evasion inside modal boundaries
+    function moveNoButton() {
+      const padding = 20;
+      const cardWidth = letterModal.clientWidth;
+      const cardHeight = letterModal.clientHeight;
+      const btnWidth = noBtn.offsetWidth;
+      const btnHeight = noBtn.offsetHeight;
+
+      const maxX = cardWidth - btnWidth - padding;
+      const maxY = cardHeight - btnHeight - padding;
+
+      const randomX = Math.floor(Math.random() * maxX) - (cardWidth / 2) + (btnWidth / 2);
+      const randomY = Math.floor(Math.random() * (maxY - 140)) + 40; 
+
+      noBtn.classList.remove('jelly-evade');
+      void noBtn.offsetWidth; 
+      noBtn.classList.add('jelly-evade');
+
+      noBtn.style.left = `${randomX}px`;
+      noBtn.style.top = `${randomY}px`;
+    }
+
+    function resetNoButton() {
+      noBtn.style.left = '60%';
+      noBtn.style.top = '10px';
+    }
+
+    // Step 3: Transition to your official message with a 3D Flip Card animation
+    function revealOfficialMessage() {
+      // Trigger the 3D flipping animation
+      letterModal.classList.add('flipping');
+
+      // Swap the text content exactly halfway through the flip (at 350ms)
+      setTimeout(() => {
+        modalTitle.innerText = "To You,";
+        modalText.innerHTML = "I know what’s running on your mind, I don’t want you to be confused and keep thinking where this situationship or whatever you call this is going. I want you to know that my intentions to you are genuinely pure. I like you and I have plans, but I don’t want to rush things. I want to get to know you deeper, learn you, and vice versa. <br><br><b>Let's take our time and see where this takes us. </b>";
+        
+        // Hide the "No" button entirely & center the final button
+        noBtn.style.display = 'none';
+        yesBtn.style.position = 'relative';
+        yesBtn.style.left = '0';
+        yesBtn.style.top = '0';
+        yesBtn.innerText = "Got it"; 
+        yesBtn.onclick = acceptInvitation; 
+      }, 350);
+
+      // Clean up classes after animation ends (at 700ms)
+      setTimeout(() => {
+        letterModal.classList.remove('flipping');
+      }, 700);
+    }
+
+    // Step 4: Success Screen Transition and falling hearts
+    function acceptInvitation() {
+      letterModal.classList.remove('active');
+      setTimeout(() => {
+        letterModal.style.display = 'none';
+        celebration.style.display = 'flex';
+        startDynamicCelebrationRain();
+      }, 400);
+    }
+
+    // Step 5: True Automatic Background Submission using your active Formspree API Link!
+    function sendFormspreeReply() {
+      const replyText = document.getElementById('reply-text').value.trim();
+      const sendBtn = document.getElementById('send-reply-btn');
+      
+      if (replyText === "") {
+        alert("Please write something first!");
+        return;
+      }
+
+      sendBtn.innerText = "Sending...";
+      sendBtn.disabled = true;
+
+      // Fully active Formspree route linked directly to your email account
+      fetch("https://formspree.io/f/xeeyejgb", { 
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          sender: "rainraingoaway",
+          reply: replyText
+        })
+      })
+      .then(response => {
+        if (response.ok) {
+          sendBtn.innerText = "Sent!";
+          alert("Your reply was sent directly to Drew's email!");
+          document.getElementById('reply-text').value = ""; 
+        } else {
+          throw new Error("Formspree rejected submission");
+        }
+      })
+      .catch(error => {
+        console.error("Sending failed: ", error);
+        alert("Oops! Background sending failed. Let's send via your Mail app instead.");
+        window.location.href = `mailto:kurtandrewragodon019@gmail.com?subject=My Reply&body=${encodeURIComponent(replyText)}`;
+        sendBtn.innerText = "Send Reply";
+        sendBtn.disabled = false;
+      });
+    }
+
+    // Spawns Hearts and Little Sparkly Stars
+    function startDynamicCelebrationRain() {
+      const symbols = ['💜', '✨', '🌸', '💖'];
+      for (let i = 0; i < 45; i++) {
+        setTimeout(() => {
+          const item = document.createElement('div');
+          item.className = 'sparkle';
+          item.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+          item.style.left = Math.random() * 100 + 'vw';
+          item.style.fontSize = Math.random() * 18 + 14 + 'px';
+          item.style.animationDuration = (Math.random() * 1.5 + 2) + 's';
+          
+          document.body.appendChild(item);
+
+          setTimeout(() => {
+            item.remove();
+          }, 3500);
+        }, i * 100);
+      }
+    }
+  </script>
+</body>
+</html>
